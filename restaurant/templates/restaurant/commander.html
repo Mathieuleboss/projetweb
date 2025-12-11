@@ -1,5 +1,5 @@
 {% extends 'restaurant/base.html' %}
-{% load l10n %}
+{% load static %}
 
 {% block title %}Commander{% endblock %}
 
@@ -30,14 +30,15 @@
         <input type="hidden" name="panier_json" id="panier_json">
     </form>
 
-    <!-- Entrées -->
+    <!-- ===================== ENTRÉES ===================== -->
     <section class="menu-section">
         <h2 class="section-title">🥗 Entrées</h2>
         <div class="plats-grid">
             {% for plat in entrees %}
                 <div class="plat-card" data-id="{{ plat.id }}" data-nom="{{ plat.nom }}" data-prix="{{ plat.prix }}">
+                    {% comment %} Remplacer image par static {% endcomment %}
                     {% if plat.image %}
-                        <img src="{{ plat.image.url }}" alt="{{ plat.nom }}">
+                        <img src="{% static 'restaurant/images/' %}{{ plat.image.name|basename }}" alt="{{ plat.nom }}">
                     {% else %}
                         <div class="plat-no-image">🥗</div>
                     {% endif %}
@@ -58,14 +59,14 @@
         </div>
     </section>
 
-    <!-- Plats -->
+    <!-- ===================== PLATS ===================== -->
     <section class="menu-section">
         <h2 class="section-title">🍽️ Plats</h2>
         <div class="plats-grid">
             {% for plat in plats %}
                 <div class="plat-card" data-id="{{ plat.id }}" data-nom="{{ plat.nom }}" data-prix="{{ plat.prix }}">
                     {% if plat.image %}
-                        <img src="{{ plat.image.url }}" alt="{{ plat.nom }}">
+                        <img src="{% static 'restaurant/images/' %}{{ plat.image.name|basename }}" alt="{{ plat.nom }}">
                     {% else %}
                         <div class="plat-no-image">🍽️</div>
                     {% endif %}
@@ -86,14 +87,14 @@
         </div>
     </section>
 
-    <!-- Desserts -->
+    <!-- ===================== DESSERTS ===================== -->
     <section class="menu-section">
         <h2 class="section-title">🍰 Desserts</h2>
         <div class="plats-grid">
             {% for plat in desserts %}
                 <div class="plat-card" data-id="{{ plat.id }}" data-nom="{{ plat.nom }}" data-prix="{{ plat.prix }}">
                     {% if plat.image %}
-                        <img src="{{ plat.image.url }}" alt="{{ plat.nom }}">
+                        <img src="{% static 'restaurant/images/' %}{{ plat.image.name|basename }}" alt="{{ plat.nom }}">
                     {% else %}
                         <div class="plat-no-image">🍰</div>
                     {% endif %}
