@@ -36,9 +36,8 @@
         <div class="plats-grid">
             {% for plat in entrees %}
                 <div class="plat-card" data-id="{{ plat.id }}" data-nom="{{ plat.nom }}" data-prix="{{ plat.prix }}">
-                    {% comment %} Remplacer image par static {% endcomment %}
-                    {% if plat.image %}
-                        <img src="{% static 'restaurant/images/' %}{{ plat.image.name|basename }}" alt="{{ plat.nom }}">
+                    {% if plat.image_nom %}
+                        <img src="{% static 'restaurant/images/' %}{{ plat.image_nom }}" alt="{{ plat.nom }}">
                     {% else %}
                         <div class="plat-no-image">🥗</div>
                     {% endif %}
@@ -47,7 +46,7 @@
                         <p>{{ plat.description|truncatewords:15 }}</p>
                         <div class="plat-footer">
                             <span class="plat-prix">{{ plat.prix }} €</span>
-                            <button class="btn-ajouter" onclick="ajouterAuPanier({{ plat.id }}, '{{ plat.nom|escapejs }}', parseFloat('{{ plat.prix|unlocalize }}'))">
+                            <button class="btn-ajouter" onclick="ajouterAuPanier({{ plat.id }}, '{{ plat.nom|escapejs }}', {{ plat.prix }})">
                                 Ajouter
                             </button>
                         </div>
@@ -65,8 +64,8 @@
         <div class="plats-grid">
             {% for plat in plats %}
                 <div class="plat-card" data-id="{{ plat.id }}" data-nom="{{ plat.nom }}" data-prix="{{ plat.prix }}">
-                    {% if plat.image %}
-                        <img src="{% static 'restaurant/images/' %}{{ plat.image.name|basename }}" alt="{{ plat.nom }}">
+                    {% if plat.image_nom %}
+                        <img src="{% static 'restaurant/images/' %}{{ plat.image_nom }}" alt="{{ plat.nom }}">
                     {% else %}
                         <div class="plat-no-image">🍽️</div>
                     {% endif %}
@@ -75,7 +74,7 @@
                         <p>{{ plat.description|truncatewords:15 }}</p>
                         <div class="plat-footer">
                             <span class="plat-prix">{{ plat.prix }} €</span>
-                            <button class="btn-ajouter" onclick="ajouterAuPanier({{ plat.id }}, '{{ plat.nom|escapejs }}', parseFloat('{{ plat.prix|unlocalize }}'))">
+                            <button class="btn-ajouter" onclick="ajouterAuPanier({{ plat.id }}, '{{ plat.nom|escapejs }}', {{ plat.prix }})">
                                 Ajouter
                             </button>
                         </div>
@@ -93,8 +92,8 @@
         <div class="plats-grid">
             {% for plat in desserts %}
                 <div class="plat-card" data-id="{{ plat.id }}" data-nom="{{ plat.nom }}" data-prix="{{ plat.prix }}">
-                    {% if plat.image %}
-                        <img src="{% static 'restaurant/images/' %}{{ plat.image.name|basename }}" alt="{{ plat.nom }}">
+                    {% if plat.image_nom %}
+                        <img src="{% static 'restaurant/images/' %}{{ plat.image_nom }}" alt="{{ plat.nom }}">
                     {% else %}
                         <div class="plat-no-image">🍰</div>
                     {% endif %}
@@ -103,7 +102,7 @@
                         <p>{{ plat.description|truncatewords:15 }}</p>
                         <div class="plat-footer">
                             <span class="plat-prix">{{ plat.prix }} €</span>
-                            <button class="btn-ajouter" onclick="ajouterAuPanier({{ plat.id }}, '{{ plat.nom|escapejs }}', parseFloat('{{ plat.prix|unlocalize }}'))">
+                            <button class="btn-ajouter" onclick="ajouterAuPanier({{ plat.id }}, '{{ plat.nom|escapejs }}', {{ plat.prix }})">
                                 Ajouter
                             </button>
                         </div>
@@ -115,13 +114,11 @@
         </div>
     </section>
 
-    <!-- Affichage points après validation -->
     {% if commande %}
         <h2>Merci pour votre commande !</h2>
         <p>Vous avez gagné <strong>{{ points_gagnes }}</strong> point{{ points_gagnes|pluralize }}.</p>
         <p>Total de points accumulés : <strong>{{ points_total }}</strong></p>
     {% endif %}
-
 </div>
 <style>
 .commander-container {
