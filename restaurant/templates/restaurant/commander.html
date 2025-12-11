@@ -1,12 +1,13 @@
 {% extends 'restaurant/base.html' %}
 {% load static %}
+{% load custom_filters %} {# Remplace par le nom de ton fichier de filtres #}
 
 {% block title %}Commander{% endblock %}
 
 {% block content %}
 <div class="commander-container">
     <h1 class="page-title">Commander à emporter</h1>
-    
+
     <!-- Panier flottant -->
     <div class="panier-flottant" id="panierFlottant">
         <div class="panier-header">
@@ -24,37 +25,25 @@
         </div>
     </div>
 
-    <!-- Formulaire caché pour envoyer le panier -->
-    <form method="post" id="formCommande" style="display:none;">
-        {% csrf_token %}
-        <input type="hidden" name="panier_json" id="panier_json">
-    </form>
-
     <!-- ===================== ENTRÉES ===================== -->
     <section class="menu-section">
         <h2 class="section-title">🥗 Entrées</h2>
         <div class="plats-grid">
-            {% for plat in entrees %}
-                <div class="plat-card" data-id="{{ plat.id }}" data-nom="{{ plat.nom }}" data-prix="{{ plat.prix }}">
-                    {% if plat.image_nom %}
-                        <img src="{% static 'restaurant/images/' %}{{ plat.image_nom }}" alt="{{ plat.nom }}">
-                    {% else %}
-                        <div class="plat-no-image">🥗</div>
-                    {% endif %}
-                    <div class="plat-info">
-                        <h3>{{ plat.nom }}</h3>
-                        <p>{{ plat.description|truncatewords:15 }}</p>
-                        <div class="plat-footer">
-                            <span class="plat-prix">{{ plat.prix }} €</span>
-                            <button class="btn-ajouter" onclick="ajouterAuPanier({{ plat.id }}, '{{ plat.nom|escapejs }}', {{ plat.prix }})">
-                                Ajouter
-                            </button>
+            {% with "salade-cesar-au-poulet_1147-401.png,Tomato_soup.png,istockphoto-481765835-612x612.png"|split:"," as images %}
+                {% for plat in entrees %}
+                    <div class="plat-card">
+                        <img src="{% static 'restaurant/images/' %}{{ images|index:forloop.counter0 }}" alt="{{ plat.nom }}">
+                        <div class="plat-info">
+                            <h3>{{ plat.nom }}</h3>
+                            <p>{{ plat.description|truncatewords:15 }}</p>
+                            <div class="plat-footer">
+                                <span class="plat-prix">{{ plat.prix }} €</span>
+                                <button class="btn-ajouter" onclick="ajouterAuPanier({{ plat.id }}, '{{ plat.nom|escapejs }}', {{ plat.prix }})">Ajouter</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            {% empty %}
-                <p>Aucune entrée disponible pour le moment.</p>
-            {% endfor %}
+                {% endfor %}
+            {% endwith %}
         </div>
     </section>
 
@@ -62,27 +51,21 @@
     <section class="menu-section">
         <h2 class="section-title">🍽️ Plats</h2>
         <div class="plats-grid">
-            {% for plat in plats %}
-                <div class="plat-card" data-id="{{ plat.id }}" data-nom="{{ plat.nom }}" data-prix="{{ plat.prix }}">
-                    {% if plat.image_nom %}
-                        <img src="{% static 'restaurant/images/' %}{{ plat.image_nom }}" alt="{{ plat.nom }}">
-                    {% else %}
-                        <div class="plat-no-image">🍽️</div>
-                    {% endif %}
-                    <div class="plat-info">
-                        <h3>{{ plat.nom }}</h3>
-                        <p>{{ plat.description|truncatewords:15 }}</p>
-                        <div class="plat-footer">
-                            <span class="plat-prix">{{ plat.prix }} €</span>
-                            <button class="btn-ajouter" onclick="ajouterAuPanier({{ plat.id }}, '{{ plat.nom|escapejs }}', {{ plat.prix }})">
-                                Ajouter
-                            </button>
+            {% with "carbonara-e1521461363147.png,pave-de-saumon-grille-avec-des-legumes-sur-blanc-2b9rwey.png,pizza-margherita-1200.png"|split:"," as images %}
+                {% for plat in plats %}
+                    <div class="plat-card">
+                        <img src="{% static 'restaurant/images/' %}{{ images|index:forloop.counter0 }}" alt="{{ plat.nom }}">
+                        <div class="plat-info">
+                            <h3>{{ plat.nom }}</h3>
+                            <p>{{ plat.description|truncatewords:15 }}</p>
+                            <div class="plat-footer">
+                                <span class="plat-prix">{{ plat.prix }} €</span>
+                                <button class="btn-ajouter" onclick="ajouterAuPanier({{ plat.id }}, '{{ plat.nom|escapejs }}', {{ plat.prix }})">Ajouter</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            {% empty %}
-                <p>Aucun plat disponible pour le moment.</p>
-            {% endfor %}
+                {% endfor %}
+            {% endwith %}
         </div>
     </section>
 
@@ -90,29 +73,25 @@
     <section class="menu-section">
         <h2 class="section-title">🍰 Desserts</h2>
         <div class="plats-grid">
-            {% for plat in desserts %}
-                <div class="plat-card" data-id="{{ plat.id }}" data-nom="{{ plat.nom }}" data-prix="{{ plat.prix }}">
-                    {% if plat.image_nom %}
-                        <img src="{% static 'restaurant/images/' %}{{ plat.image_nom }}" alt="{{ plat.nom }}">
-                    {% else %}
-                        <div class="plat-no-image">🍰</div>
-                    {% endif %}
-                    <div class="plat-info">
-                        <h3>{{ plat.nom }}</h3>
-                        <p>{{ plat.description|truncatewords:15 }}</p>
-                        <div class="plat-footer">
-                            <span class="plat-prix">{{ plat.prix }} €</span>
-                            <button class="btn-ajouter" onclick="ajouterAuPanier({{ plat.id }}, '{{ plat.nom|escapejs }}', {{ plat.prix }})">
-                                Ajouter
-                            </button>
+            {% with "glace-vanille-maison.png,Tarte-aux-pommes-11.png,i196570-tiramisu-simple.png"|split:"," as images %}
+                {% for plat in desserts %}
+                    <div class="plat-card">
+                        <img src="{% static 'restaurant/images/' %}{{ images|index:forloop.counter0 }}" alt="{{ plat.nom }}">
+                        <div class="plat-info">
+                            <h3>{{ plat.nom }}</h3>
+                            <p>{{ plat.description|truncatewords:15 }}</p>
+                            <div class="plat-footer">
+                                <span class="plat-prix">{{ plat.prix }} €</span>
+                                <button class="btn-ajouter" onclick="ajouterAuPanier({{ plat.id }}, '{{ plat.nom|escapejs }}', {{ plat.prix }})">Ajouter</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            {% empty %}
-                <p>Aucun dessert disponible pour le moment.</p>
-            {% endfor %}
+                {% endfor %}
+            {% endwith %}
         </div>
     </section>
+</div>
+
 
     {% if commande %}
         <h2>Merci pour votre commande !</h2>
