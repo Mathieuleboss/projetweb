@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 # ------------------------------
 # Chemins de base
@@ -9,8 +10,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Sécurité
 # ------------------------------
 SECRET_KEY = 'django-insecure-5e3qh%)wm%3=c#)*+ascei$8a29%3e+y9*w$nr_7brz%*esdtl'
-DEBUG = True
-ALLOWED_HOSTS = []
+DEBUG = False  # ⚠️ Mettre False en production
+ALLOWED_HOSTS = ['projetweb-juzk.onrender.com']  # Domaine Render
 
 # ------------------------------
 # Applications installées
@@ -32,14 +33,16 @@ INSTALLED_APPS = [
 # ------------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # <-- pour servir les static files en prod
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'restaurant.middleware.NoCacheMiddleware',  # <-- ajoute cette ligne
+    'restaurant.middleware.NoCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 # ------------------------------
 # URL configuration
 # ------------------------------
@@ -51,13 +54,13 @@ ROOT_URLCONF = 'projetweb.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "restaurant" / "templates"],  # chemin pour templates
+        'DIRS': [BASE_DIR / "restaurant" / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
-                'django.template.context_processors.request',  # <--- nécessaire pour request dans template
-                'django.contrib.auth.context_processors.auth',  # <--- nécessaire pour user.is_authenticated
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.csrf',
                 'django.template.context_processors.i18n',
                 'django.template.context_processors.media',
@@ -108,6 +111,8 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "restaurant" / "static",
 ]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # ------------------------------
 # Clé primaire par défaut
@@ -117,12 +122,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ------------------------------
 # Redirections Login/Logout
 # ------------------------------
-LOGIN_URL = 'login'  # Nom de l'URL de connexion
-
-# URL de redirection après connexion réussie
+LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'accueil'
-
-# URL de redirection après déconnexion
 LOGOUT_REDIRECT_URL = 'accueil'
 
 # ------------------------------
@@ -130,6 +131,3 @@ LOGOUT_REDIRECT_URL = 'accueil'
 # ------------------------------
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-
-STATIC_ROOT = BASE_DIR / "staticfiles"
-ALLOWED_HOSTS = ['*']
