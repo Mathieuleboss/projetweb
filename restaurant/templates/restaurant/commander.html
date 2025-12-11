@@ -1,0 +1,468 @@
+{% extends 'restaurant/base.html' %}
+{% load l10n %}
+
+{% block title %}Commander{% endblock %}
+
+{% block content %}
+<div class="commander-container">
+    <h1 class="page-title">Commander à emporter</h1>
+    
+    <!-- Panier flottant -->
+    <div class="panier-flottant" id="panierFlottant">
+        <div class="panier-header">
+            <h3>🛒 Mon panier (<span id="panierCount">0</span>)</h3>
+            <button class="btn-toggle" onclick="togglePanier()">▼</button>
+        </div>
+        <div class="panier-content" id="panierContent">
+            <div id="panierListe"></div>
+            <div class="panier-total">
+                <strong>Total : <span id="panierTotal">0.00</span> €</strong>
+            </div>
+            <a href="#" class="btn-valider" id="btnValider" style="display:none;" onclick="validerCommande(event)">
+                Valider la commande
+            </a>
+        </div>
+    </div>
+
+    <!-- Formulaire caché pour envoyer le panier -->
+    <form method="post" id="formCommande" style="display:none;">
+        {% csrf_token %}
+        <input type="hidden" name="panier_json" id="panier_json">
+    </form>
+
+    <!-- Entrées -->
+    <section class="menu-section">
+        <h2 class="section-title">🥗 Entrées</h2>
+        <div class="plats-grid">
+            {% for plat in entrees %}
+                <div class="plat-card" data-id="{{ plat.id }}" data-nom="{{ plat.nom }}" data-prix="{{ plat.prix }}">
+                    {% if plat.image %}
+                        <img src="{{ plat.image.url }}" alt="{{ plat.nom }}">
+                    {% else %}
+                        <div class="plat-no-image">🥗</div>
+                    {% endif %}
+                    <div class="plat-info">
+                        <h3>{{ plat.nom }}</h3>
+                        <p>{{ plat.description|truncatewords:15 }}</p>
+                        <div class="plat-footer">
+                            <span class="plat-prix">{{ plat.prix }} €</span>
+                            <button class="btn-ajouter" onclick="ajouterAuPanier({{ plat.id }}, '{{ plat.nom|escapejs }}', parseFloat('{{ plat.prix|unlocalize }}'))">
+                                Ajouter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p>Aucune entrée disponible pour le moment.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Plats -->
+    <section class="menu-section">
+        <h2 class="section-title">🍽️ Plats</h2>
+        <div class="plats-grid">
+            {% for plat in plats %}
+                <div class="plat-card" data-id="{{ plat.id }}" data-nom="{{ plat.nom }}" data-prix="{{ plat.prix }}">
+                    {% if plat.image %}
+                        <img src="{{ plat.image.url }}" alt="{{ plat.nom }}">
+                    {% else %}
+                        <div class="plat-no-image">🍽️</div>
+                    {% endif %}
+                    <div class="plat-info">
+                        <h3>{{ plat.nom }}</h3>
+                        <p>{{ plat.description|truncatewords:15 }}</p>
+                        <div class="plat-footer">
+                            <span class="plat-prix">{{ plat.prix }} €</span>
+                            <button class="btn-ajouter" onclick="ajouterAuPanier({{ plat.id }}, '{{ plat.nom|escapejs }}', parseFloat('{{ plat.prix|unlocalize }}'))">
+                                Ajouter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p>Aucun plat disponible pour le moment.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Desserts -->
+    <section class="menu-section">
+        <h2 class="section-title">🍰 Desserts</h2>
+        <div class="plats-grid">
+            {% for plat in desserts %}
+                <div class="plat-card" data-id="{{ plat.id }}" data-nom="{{ plat.nom }}" data-prix="{{ plat.prix }}">
+                    {% if plat.image %}
+                        <img src="{{ plat.image.url }}" alt="{{ plat.nom }}">
+                    {% else %}
+                        <div class="plat-no-image">🍰</div>
+                    {% endif %}
+                    <div class="plat-info">
+                        <h3>{{ plat.nom }}</h3>
+                        <p>{{ plat.description|truncatewords:15 }}</p>
+                        <div class="plat-footer">
+                            <span class="plat-prix">{{ plat.prix }} €</span>
+                            <button class="btn-ajouter" onclick="ajouterAuPanier({{ plat.id }}, '{{ plat.nom|escapejs }}', parseFloat('{{ plat.prix|unlocalize }}'))">
+                                Ajouter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p>Aucun dessert disponible pour le moment.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Affichage points après validation -->
+    {% if commande %}
+        <h2>Merci pour votre commande !</h2>
+        <p>Vous avez gagné <strong>{{ points_gagnes }}</strong> point{{ points_gagnes|pluralize }}.</p>
+        <p>Total de points accumulés : <strong>{{ points_total }}</strong></p>
+    {% endif %}
+
+</div>
+<style>
+.commander-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    padding-right: 320px;
+}
+
+.page-title {
+    text-align: center;
+    color: var(--primary);
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+}
+
+.menu-section {
+    margin-bottom: 60px;
+}
+
+.section-title {
+    color: var(--secondary);
+    font-size: 2rem;
+    margin-bottom: 30px;
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 10px;
+}
+
+.plats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.plat-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.plat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.plat-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.plat-no-image {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+}
+
+.plat-info {
+    padding: 20px;
+}
+
+.plat-info h3 {
+    color: var(--secondary);
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+}
+
+.plat-info p {
+    color: #666;
+    font-size: 0.95rem;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.plat-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.plat-prix {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.btn-ajouter {
+    padding: 10px 20px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-ajouter:hover {
+    background: var(--primary-dark);
+    transform: scale(1.05);
+}
+
+/* Panier flottant */
+.panier-flottant {
+    position: fixed;
+    right: 20px;
+    top: 120px;
+    width: 300px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
+.panier-header {
+    background: var(--primary);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.panier-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.btn-toggle {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.panier-content {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+#panierListe {
+    padding: 15px;
+}
+
+.panier-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.panier-item-info {
+    flex: 1;
+}
+
+.panier-item-nom {
+    font-weight: 600;
+    color: var(--secondary);
+}
+
+.panier-item-prix {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.panier-item-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-qty {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.panier-total {
+    padding: 15px 20px;
+    background: #f8f9fa;
+    text-align: center;
+    font-size: 1.3rem;
+    color: var(--secondary);
+}
+
+.btn-valider {
+    display: block;
+    margin: 15px;
+    padding: 15px;
+    background: #27ae60;
+    color: white;
+    text-align: center;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-valider:hover {
+    background: #229954;
+    transform: scale(1.02);
+}
+
+@media (max-width: 1024px) {
+    .commander-container {
+        padding-right: 20px;
+    }
+    
+    .panier-flottant {
+        position: static;
+        width: 100%;
+        margin-bottom: 30px;
+    }
+}
+</style>
+
+<script>
+let panier = [];
+
+function ajouterAuPanier(id, nom, prix) {
+    const index = panier.findIndex(item => item.id === id);
+    
+    if (index > -1) {
+        panier[index].quantite++;
+    } else {
+        panier.push({ id, nom, prix, quantite: 1 });
+    }
+    
+    updatePanier();
+}
+
+function modifierQuantite(id, delta) {
+    const index = panier.findIndex(item => item.id === id);
+    
+    if (index > -1) {
+        panier[index].quantite += delta;
+        
+        if (panier[index].quantite <= 0) {
+            panier.splice(index, 1);
+        }
+    }
+    
+    updatePanier();
+}
+
+function updatePanier() {
+    const panierListe = document.getElementById('panierListe');
+    const panierCount = document.getElementById('panierCount');
+    const panierTotal = document.getElementById('panierTotal');
+    const btnValider = document.getElementById('btnValider');
+    
+    if (panier.length === 0) {
+        panierListe.innerHTML = '<p style="text-align:center; color:#999;">Panier vide</p>';
+        btnValider.style.display = 'none';
+    } else {
+        let html = '';
+        let total = 0;
+        let count = 0;
+        
+        panier.forEach(item => {
+            const sousTotal = item.prix * item.quantite;
+            total += sousTotal;
+            count += item.quantite;
+            
+            html += `
+                <div class="panier-item">
+                    <div class="panier-item-info">
+                        <div class="panier-item-nom">${item.nom}</div>
+                        <div class="panier-item-prix">${item.prix.toFixed(2)} € x ${item.quantite}</div>
+                    </div>
+                    <div class="panier-item-controls">
+                        <button class="btn-qty" onclick="modifierQuantite(${item.id}, -1)">-</button>
+                        <span>${item.quantite}</span>
+                        <button class="btn-qty" onclick="modifierQuantite(${item.id}, 1)">+</button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        panierListe.innerHTML = html;
+        panierCount.textContent = count;
+        panierTotal.textContent = total.toFixed(2);
+        btnValider.style.display = 'block';
+        
+        // Stocker le panier dans sessionStorage pour la page suivante
+        sessionStorage.setItem('panier', JSON.stringify(panier));
+    }
+}
+
+function togglePanier() {
+    const content = document.getElementById('panierContent');
+    const btn = document.querySelector('.btn-toggle');
+    
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        btn.textContent = '▼';
+    } else {
+        content.style.display = 'none';
+        btn.textContent = '▲';
+    }
+}
+
+// Charger le panier depuis sessionStorage au chargement
+window.addEventListener('DOMContentLoaded', () => {
+    const panierSauve = sessionStorage.getItem('panier');
+    if (panierSauve) {
+        panier = JSON.parse(panierSauve);
+        updatePanier();
+    }
+});
+
+
+function validerCommande(event) {
+    event.preventDefault();
+    if (panier.length === 0) return;
+
+    // Stocker le panier dans sessionStorage
+    sessionStorage.setItem('panier', JSON.stringify(panier));
+
+    // Redirection vers la page panier.html (template Django : 'panier')
+    window.location.href = "{% url 'panier' %}";
+}
+</script>
+
+</script>
+{% if commande %}
+    <h2>Merci pour votre commande !</h2>
+    <p>Vous avez gagné <strong>{{ points_gagnes }}</strong> point{{ points_gagnes|pluralize }}.</p>
+    <p>Total de points accumulés : <strong>{{ points_total }}</strong></p>
+{% endif %}
+{% endblock %}

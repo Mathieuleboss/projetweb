@@ -1,0 +1,491 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block title %}Accueil{% endblock %}
+
+
+{% block content %}
+
+<!-- ================= BANNIÈRE ================= -->
+<section class="banner">
+    <div class="banner-overlay"></div>
+    <div class="banner-content">
+        <h1 class="banner-title">Bienvenue au Restaurant Gourmet</h1>
+        <p class="banner-subtitle">Découvrez une expérience culinaire inoubliable</p>
+        <div class="banner-buttons">
+            <a href="{% url 'menu' %}" class="btn btn-primary">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
+                </svg>
+                Voir le Menu
+            </a>
+            <a href="{% url 'reservations' %}" class="btn btn-secondary">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                Réserver une table
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ================= NOS SPÉCIALITÉS ================= -->
+<section class="specialties">
+    <h2 class="section-title">Nos Spécialités</h2>
+    <div class="specialties-grid">
+        <div class="specialty-card">
+            <div class="specialty-icon">🍕</div>
+            <h3>Pizzas Artisanales</h3>
+            <p>Pâte fraîche préparée chaque jour, cuites au feu de bois</p>
+        </div>
+        <div class="specialty-card">
+            <div class="specialty-icon">🍝</div>
+            <h3>Pâtes Fraîches</h3>
+            <p>Recettes italiennes authentiques avec des ingrédients premium</p>
+        </div>
+        <div class="specialty-card">
+            <div class="specialty-icon">🥗</div>
+            <h3>Salades Fraîches</h3>
+            <p>Légumes bio et locaux, sauces maison</p>
+        </div>
+    </div>
+</section>
+
+<!-- ================= À PROPOS ================= -->
+<section class="about">
+    <div class="about-content">
+        <div class="about-text">
+            <h2 class="section-title">À propos de nous</h2>
+            <p class="about-description">
+                Depuis 2025, notre restaurant offre des plats délicieux préparés avec des ingrédients frais et locaux. 
+                Profitez d'une ambiance chaleureuse et d'un service de qualité.
+            </p>
+            <div class="about-stats">
+                <div class="stat">
+                    <div class="stat-number">2025</div>
+                    <div class="stat-label">Année de création</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">Plats au menu</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Produits frais</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= HORAIRES ================= -->
+<section class="hours">
+    <h2 class="section-title">Horaires d'ouverture</h2>
+    <div class="hours-grid">
+        <div class="hours-item">
+            <span class="day">Lundi - Vendredi</span>
+            <span class="time">12h00 - 14h30 • 19h00 - 22h30</span>
+        </div>
+        <div class="hours-item">
+            <span class="day">Samedi - Dimanche</span>
+            <span class="time">12h00 - 15h00 • 19h00 - 23h00</span>
+        </div>
+    </div>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<section class="contact">
+    <h2 class="section-title">Contactez-nous</h2>
+    <div class="contact-grid">
+        <div class="contact-card">
+            <div class="contact-icon">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+            </div>
+            <h3>Téléphone</h3>
+            <p>01 23 45 67 89</p>
+        </div>
+        <div class="contact-card">
+            <div class="contact-icon">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                </svg>
+            </div>
+            <h3>Email</h3>
+            <p>contact@restaurantgourmet.fr</p>
+        </div>
+        <div class="contact-card">
+            <div class="contact-icon">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                </svg>
+            </div>
+            <h3>Adresse</h3>
+            <p>123 Rue de la Cuisine, Paris</p>
+        </div>
+    </div>
+</section>
+
+<style>
+/* ================= BANNIÈRE ================= */
+.banner {
+    position: relative;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url('{% static "restaurant/images/restaurant-banner.jpg" %}');
+    background-size: cover;
+    background-position: center;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 60px;
+}
+
+.banner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(44, 62, 80, 0.85) 0%, rgba(211, 84, 0, 0.75) 100%);
+}
+
+.banner-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: white;
+    padding: 20px;
+}
+
+.banner-title {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    text-shadow: 2px 4px 8px rgba(0,0,0,0.5);
+    animation: fadeInDown 1s ease;
+}
+
+.banner-subtitle {
+    font-size: 1.5rem;
+    margin-bottom: 35px;
+    text-shadow: 1px 2px 4px rgba(0,0,0,0.5);
+    animation: fadeInUp 1s ease 0.3s backwards;
+}
+
+.banner-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeInUp 1s ease 0.6s backwards;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 30px;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #d35400 0%, #e67e22 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(211, 84, 0, 0.5);
+}
+
+.btn-secondary {
+    background: white;
+    color: #d35400;
+}
+
+.btn-secondary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.4);
+    background: #f8f9fa;
+}
+
+/* ================= SECTIONS ================= */
+.section-title {
+    text-align: center;
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 40px;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, #d35400, #e67e22);
+    border-radius: 2px;
+}
+
+/* ================= SPÉCIALITÉS ================= */
+.specialties {
+    padding: 60px 0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    margin: 0 -30px;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+.specialties-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.specialty-card {
+    background: white;
+    padding: 40px 25px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+}
+
+.specialty-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 30px rgba(211, 84, 0, 0.2);
+}
+
+.specialty-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+}
+
+.specialty-card h3 {
+    color: #d35400;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.specialty-card p {
+    color: #666;
+    line-height: 1.6;
+}
+
+/* ================= À PROPOS ================= */
+.about {
+    padding: 60px 0;
+}
+
+.about-description {
+    text-align: center;
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: #555;
+    max-width: 700px;
+    margin: 0 auto 50px;
+}
+
+.about-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 30px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.stat {
+    text-align: center;
+    padding: 30px;
+    background: linear-gradient(135deg, #d35400 0%, #e67e22 100%);
+    border-radius: 15px;
+    color: white;
+    box-shadow: 0 5px 15px rgba(211, 84, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.stat:hover {
+    transform: scale(1.05);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.stat-label {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+/* ================= HORAIRES ================= */
+.hours {
+    padding: 60px 0;
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    margin: 0 -30px;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+.hours .section-title {
+    color: white;
+}
+
+.hours .section-title::after {
+    background: linear-gradient(90deg, #d35400, #e67e22);
+}
+
+.hours-grid {
+    max-width: 700px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.hours-item {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 25px 30px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    border-left: 4px solid #d35400;
+    backdrop-filter: blur(10px);
+}
+
+.day {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.time {
+    color: #f39c12;
+    font-weight: 500;
+}
+
+/* ================= CONTACT ================= */
+.contact {
+    padding: 60px 0;
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.contact-card {
+    background: white;
+    padding: 40px 25px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border-top: 4px solid #d35400;
+}
+
+.contact-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(211, 84, 0, 0.2);
+}
+
+.contact-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #d35400 0%, #e67e22 100%);
+    border-radius: 50%;
+    margin-bottom: 20px;
+}
+
+.contact-icon svg {
+    stroke: white;
+    stroke-width: 2;
+}
+
+.contact-card h3 {
+    color: #2c3e50;
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+}
+
+.contact-card p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+/* ================= ANIMATIONS ================= */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+    .banner-title {
+        font-size: 2.2rem;
+    }
+    
+    .banner-subtitle {
+        font-size: 1.2rem;
+    }
+    
+    .banner-buttons {
+        flex-direction: column;
+    }
+    
+    .hours-item {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+    }
+}
+</style>
+
+{% endblock %}

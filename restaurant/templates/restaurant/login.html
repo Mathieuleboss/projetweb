@@ -1,0 +1,32 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block content %}
+<div class="form-box">
+    <h2>Connexion</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-error">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <label>Nom d'utilisateur</label>
+        <input type="text" name="username" required>
+
+        <label>Mot de passe</label>
+        <input type="password" name="password" required>
+
+        <button class="btn btn-primary" type="submit">Se connecter</button>
+    </form>
+
+    <p>Pas encore de compte ?
+        <a href="{% url 'register' %}">Créer un compte</a>
+    </p>
+</div>
+{% endblock %}

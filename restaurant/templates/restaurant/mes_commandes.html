@@ -1,0 +1,242 @@
+{% extends 'restaurant/base.html' %}
+
+{% block title %}Mes commandes{% endblock %}
+
+{% block content %}
+<div class="commandes-container">
+    <h1 class="page-title">📦 Mes commandes</h1>
+    
+    {% if commandes %}
+        {% for commande in commandes %}
+            <div class="commande-card">
+                <div class="commande-header">
+                    <div class="commande-info">
+                        <h3>Commande #{{ commande.id }}</h3>
+                        <span class="commande-date">{{ commande.date_creation|date:"d/m/Y à H:i" }}</span>
+                    </div>
+                    <div class="commande-statut statut-{{ commande.statut }}">
+                        {% if commande.statut == 'en_attente' %}⏳ En attente{% endif %}
+                        {% if commande.statut == 'en_preparation' %}👨‍🍳 En préparation{% endif %}
+                        {% if commande.statut == 'prete' %}✅ Prête{% endif %}
+                        {% if commande.statut == 'livree' %}🚚 Livrée{% endif %}
+                        {% if commande.statut == 'annulee' %}❌ Annulée{% endif %}
+                    </div>
+                </div>
+                
+                <div class="commande-details">
+                    <h4>Détails de la commande :</h4>
+                    <ul class="commande-items">
+                        {% for ligne in commande.lignes.all %}
+                            <li>
+                                <span class="item-nom">{{ ligne.quantite }}x {{ ligne.plat.nom }}</span>
+                                <span class="item-prix">{{ ligne.sous_total }} €</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    
+                    <div class="commande-meta">
+                        <p><strong>Mode de paiement :</strong> 
+                            {% if commande.mode_paiement == 'carte' %}💳 Carte bancaire{% endif %}
+                            {% if commande.mode_paiement == 'especes' %}💵 Espèces{% endif %}
+                            {% if commande.mode_paiement == 'paypal' %}🅿️ PayPal{% endif %}
+                        </p>
+                        <p><strong>Téléphone :</strong> {{ commande.telephone }}</p>
+                        {% if commande.adresse_livraison %}
+                            <p><strong>Adresse de livraison :</strong> {{ commande.adresse_livraison }}</p>
+                        {% else %}
+                            <p><strong>Mode :</strong> À emporter 🥡</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="commande-footer">
+                    <span class="commande-total">Total : {{ commande.montant_total }} €</span><br>
+                    <span class="commande-points">Points gagnés : {{ commande.points_gagnes }}</span>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-commandes">
+            <p>🍽️ Vous n'avez pas encore passé de commande.</p>
+            <a href="{% url 'commander' %}" class="btn">Commander maintenant</a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.commandes-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.page-title {
+    text-align: center;
+    color: var(--primary);
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+}
+
+.commande-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin-bottom: 25px;
+    overflow: hidden;
+}
+
+.commande-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 2px solid #dee2e6;
+}
+
+.commande-info h3 {
+    color: var(--secondary);
+    margin: 0 0 5px 0;
+    font-size: 1.3rem;
+}
+
+.commande-date {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.commande-statut {
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.statut-en_attente {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.statut-en_preparation {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.statut-prete {
+    background: #d4edda;
+    color: #155724;
+}
+
+.statut-livree {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.statut-annulee {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.commande-details {
+    padding: 25px;
+}
+
+.commande-details h4 {
+    color: var(--secondary);
+    margin-bottom: 15px;
+}
+
+.commande-items {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+}
+
+.commande-items li {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.item-nom {
+    color: var(--secondary);
+    font-weight: 500;
+}
+
+.item-prix {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.commande-meta {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+.commande-meta p {
+    margin: 8px 0;
+    color: #666;
+}
+
+.commande-footer {
+    padding: 20px 25px;
+    background: var(--primary);
+    text-align: right;
+}
+
+.commande-total {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    display: block;
+}
+
+.commande-points {
+    color: #ffa500;
+    font-weight: bold;
+    margin-top: 5px;
+    display: block;
+}
+
+.no-commandes {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.no-commandes p {
+    font-size: 1.3rem;
+    color: #666;
+    margin-bottom: 25px;
+}
+
+.no-commandes .btn {
+    display: inline-block;
+    padding: 12px 30px;
+    background: var(--primary);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.no-commandes .btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .commande-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+}
+</style>
+{% endblock %}

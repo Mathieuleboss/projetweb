@@ -1,0 +1,36 @@
+<!-- restaurant/employe_tabs.html -->
+
+<!-- Infos personnelles -->
+<div id="tab-infos" class="tab-content active">
+    <h3>Mes Informations</h3>
+    <p>Nom: {{ request.user.last_name }}</p>
+    <p>Prénom: {{ request.user.first_name }}</p>
+    <p>Email: {{ request.user.email }}</p>
+    <p>Téléphone urgence: {{ employe_info.telephone_urgence }}</p>
+    <p>Contact urgence: {{ employe_info.contact_urgence }}</p>
+</div>
+
+<!-- Horaires -->
+<div id="tab-horaires" class="tab-content">
+    <h3>Mes Horaires</h3>
+    <ul>
+        {% for horaire in horaires_list %}
+            <li>{{ horaire.jour|capfirst }} : {{ horaire.debut }} - {{ horaire.fin }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<!-- Commandes à servir -->
+<div id="tab-commandes" class="tab-content">
+    <h3>Commandes à Servir</h3>
+    {% comment %}
+    Ici tu peux ajouter les commandes liées à l'employé si tu as un modèle Commande avec un champ employe
+    {% endcomment %}
+</div>
+
+<!-- Statistiques -->
+<div id="tab-stats" class="tab-content">
+    <h3>Statistiques</h3>
+    <p>Salaire mensuel: {{ salaire_mensuel }}€</p>
+    <p>Ancienneté: {{ anciennete_annees }} ans et {{ anciennete_jours }} jours</p>
+</div>

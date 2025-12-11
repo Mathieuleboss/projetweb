@@ -1,0 +1,134 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block title %}Menu{% endblock %}
+
+{% block content %}
+
+<h1 class="menu-title">Notre Menu</h1>
+
+<!-- ===================== FORMULES ===================== -->
+<h2 class="menu-subtitle">Formules Midi & Soir</h2>
+<div class="menu-card formule">
+
+    <div class="formule-images">
+        <img src="{% static 'restaurant/images/salade-cesar-au-poulet_1147-401.png' %}" alt="Entrée">
+        <img src="{% static 'restaurant/images/pizza-margherita-1200.png' %}" alt="Plat">
+        <img src="{% static 'restaurant/images/i196570-tiramisu-simple.png' %}" alt="Dessert">
+    </div>
+
+    <h3>Formule Midi</h3>
+    <div class="details">
+        <p>Entrée : Salade César</p>
+        <p>Plat : Pizza Margherita</p>
+        <p>Dessert : Tiramisu Maison</p>
+    </div>
+    <span class="price">€18</span>
+</div>
+
+
+<div class="menu-card formule">
+
+    <div class="formule-images">
+        <img src="{% static 'restaurant/images/Tomato_soup.png' %}" alt="Entrée">
+        <img src="{% static 'restaurant/images/carbonara-e1521461363147.png' %}" alt="Plat">
+        <img src="{% static 'restaurant/images/glace-vanille-maison.png' %}" alt="Dessert">
+    </div>
+
+    <h3>Formule Soir</h3>
+    <div class="details">
+        <p>Entrée : Soupe de Tomates</p>
+        <p>Plat : Pâtes Carbonara</p>
+        <p>Dessert : Glace Vanille</p>
+    </div>
+    <span class="price">€25</span>
+</div>
+
+
+
+<!-- ===================== ENTRÉES ===================== -->
+<h2 class="menu-subtitle">Entrées</h2>
+<div class="menu-grid">
+
+    <div class="menu-card">
+        <img src="{% static 'restaurant/images/salade-cesar-au-poulet_1147-401.png' %}" alt="Salade César">
+        <h3>Salade César</h3>
+        <p>Laitue, poulet grillé, croûtons, parmesan.</p>
+        <span class="price">€9</span>
+    </div>
+
+    <div class="menu-card">
+        <img src="{% static 'restaurant/images/Tomato_soup.png' %}" alt="Soupe">
+        <h3>Soupe de Tomates</h3>
+        <p>Tomates fraîches, basilic, huile d'olive.</p>
+        <span class="price">€5</span>
+    </div>
+
+        <div class="menu-card">
+        <img src="{% static 'restaurant/images/istockphoto-481765835-612x612.png' %}" alt="Soupe">
+        <h3>Bruschetta</h3>
+        <p>Pain grillé, tomates, basilic, huile d'olive</p>
+        <span class="price">€7</span>
+    </div>
+
+</div>
+
+
+
+<!-- ===================== PLATS ===================== -->
+<h2 class="menu-subtitle">Plats</h2>
+<div class="menu-grid">
+
+    <div class="menu-card">
+        <img src="{% static 'restaurant/images/pizza-margherita-1200.png' %}" alt="Pizza">
+        <h3>Pizza Margherita</h3>
+        <p>Tomate, mozzarella, basilic frais.</p>
+        <span class="price">€12</span>
+    </div>
+
+    <div class="menu-card">
+        <img src="{% static 'restaurant/images/carbonara-e1521461363147.png' %}" alt="Pâtes">
+        <h3>Pâtes Carbonara</h3>
+        <p>Pâtes fraîches, crème, lardons, parmesan.</p>
+        <span class="price">€10</span>
+    </div>
+
+        <div class="menu-card">
+        <img src="{% static 'restaurant/images/pave-de-saumon-grille-avec-des-legumes-sur-blanc-2b9rwey.png' %}" alt="Pâtes">
+        <h3>Saumon grillé</h3>
+        <p>Filet de saumon, légumes de saison</p>
+        <span class="price">€15</span>
+    </div>
+
+</div>
+
+
+
+<!-- ===================== DESSERTS ===================== -->
+<h2 class="menu-subtitle">Desserts</h2>
+<div class="menu-grid">
+
+    <div class="menu-card">
+        <img src="{% static 'restaurant/images/i196570-tiramisu-simple.png' %}" alt="Tiramisu">
+        <h3>Tiramisu Maison</h3>
+        <p>Café, mascarpone, cacao.</p>
+        <span class="price">€6</span>
+    </div>
+
+    <div class="menu-card">
+        <img src="{% static 'restaurant/images/glace-vanille-maison.png' %}" alt="Glace">
+        <h3>Glace Vanille</h3>
+        <p>2 boules artisanales.</p>
+        <span class="price">€5</span>
+    
+    </div>
+        <div class="menu-card">
+        <img src="{% static 'restaurant/images/Tarte-aux-pommes-11.png' %}" alt="Glace">
+        <h3>Tarte aux pommes</h3>
+        <p>Tarte aux pommes chaude</p>
+        <span class="price">€6</span>
+    </div>
+
+</div>
+
+{% endblock %}

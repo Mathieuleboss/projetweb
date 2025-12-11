@@ -1,0 +1,354 @@
+{% extends 'restaurant/base.html' %}
+
+{% block title %}Mon panier{% endblock %}
+
+{% block content %}
+<div class="panier-container">
+    <h1 class="page-title">Validation de la commande</h1>
+    
+    <div class="panier-layout">
+        <!-- Récapitulatif du panier -->
+        <div class="panier-recap">
+            <h2>📋 Récapitulatif</h2>
+            <div id="recapListe"></div>
+            <div class="recap-total">
+                <strong>Total : <span id="recapTotal">0.00</span> €</strong>
+            </div>
+        </div>
+        
+        <!-- Formulaire de commande -->
+        <div class="commande-form-box">
+            <h2>💳 Informations de paiement</h2>
+            
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert {% if 'error' in message.tags %}alert-error{% else %}alert-success{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <form method="post" id="commandeForm">
+                {% csrf_token %}
+                
+                <input type="hidden" name="panier_data" id="panierData">
+                
+                <div class="form-group">
+                    <label>{{ form.mode_paiement.label }}</label>
+                    <div class="payment-options">
+                        {% for radio in form.mode_paiement %}
+                            <label class="payment-option">
+                                {{ radio.tag }}
+                                <span class="payment-label">
+                                    {% if radio.choice_label == "Carte bancaire" %}💳{% endif %}
+                                    {% if radio.choice_label == "Espèces" %}💵{% endif %}
+                                    {% if radio.choice_label == "PayPal" %}🅿️{% endif %}
+                                    {{ radio.choice_label }}
+                                </span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    {% if form.mode_paiement.errors %}
+                        <div class="field-error">{{ form.mode_paiement.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.telephone.id_for_label }}">{{ form.telephone.label }}</label>
+                    {{ form.telephone }}
+                    {% if form.telephone.errors %}
+                        <div class="field-error">{{ form.telephone.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.adresse_livraison.id_for_label }}">{{ form.adresse_livraison.label }}</label>
+                    {{ form.adresse_livraison }}
+                    <small style="color: #666;">Laissez vide si vous venez chercher sur place</small>
+                    {% if form.adresse_livraison.errors %}
+                        <div class="field-error">{{ form.adresse_livraison.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+                
+                <button type="submit" class="btn-submit" id="btnValiderCommande">
+                    ✅ Valider la commande
+                </button>
+                
+                <a href="{% url 'commander' %}" class="btn-retour">
+                    ← Retour au menu
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.panier-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.page-title {
+    text-align: center;
+    color: var(--primary);
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+}
+
+.panier-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.panier-recap {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    height: fit-content;
+}
+
+.panier-recap h2 {
+    color: var(--secondary);
+    margin-bottom: 25px;
+    font-size: 1.5rem;
+}
+
+#recapListe {
+    margin-bottom: 20px;
+}
+
+.recap-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.recap-item-info {
+    flex: 1;
+}
+
+.recap-item-nom {
+    font-weight: 600;
+    color: var(--secondary);
+    margin-bottom: 5px;
+}
+
+.recap-item-details {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.recap-item-prix {
+    font-weight: bold;
+    color: var(--primary);
+    font-size: 1.1rem;
+}
+
+.recap-total {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 3px solid var(--primary);
+    text-align: right;
+    font-size: 1.5rem;
+    color: var(--secondary);
+}
+
+.commande-form-box {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.commande-form-box h2 {
+    color: var(--secondary);
+    margin-bottom: 25px;
+    font-size: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: var(--secondary);
+}
+
+.form-group input[type="text"],
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(211,84,0,0.1);
+}
+
+.payment-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.payment-option {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.payment-option:hover {
+    border-color: var(--primary);
+    background: #fff5f0;
+}
+
+.payment-option input[type="radio"] {
+    margin-right: 15px;
+    width: 20px;
+    height: 20px;
+}
+
+.payment-option input[type="radio"]:checked + .payment-label {
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.payment-label {
+    font-size: 1.1rem;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 15px;
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 15px;
+}
+
+.btn-submit:hover {
+    background: #229954;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(39,174,96,0.3);
+}
+
+.btn-retour {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: #95a5a6;
+    color: white;
+    text-align: center;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-retour:hover {
+    background: #7f8c8d;
+}
+
+.panier-vide {
+    text-align: center;
+    padding: 60px 20px;
+    background: #f8f9fa;
+    border-radius: 15px;
+}
+
+.panier-vide h2 {
+    color: var(--secondary);
+    margin-bottom: 20px;
+}
+
+.field-error {
+    color: #dc3545;
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+    .panier-layout {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+// Charger le panier depuis sessionStorage
+window.addEventListener('DOMContentLoaded', () => {
+    const panierSauve = sessionStorage.getItem('panier');
+    
+    if (!panierSauve || JSON.parse(panierSauve).length === 0) {
+        document.querySelector('.panier-container').innerHTML = `
+            <div class="panier-vide">
+                <h2>🛒 Votre panier est vide</h2>
+                <p>Ajoutez des plats depuis le menu</p>
+                <a href="{% url 'commander' %}" class="btn-submit" style="display:inline-block; width:auto; padding:12px 30px; margin-top:20px;">
+                    Voir le menu
+                </a>
+            </div>
+        `;
+        return;
+    }
+    
+    const panier = JSON.parse(panierSauve);
+    const recapListe = document.getElementById('recapListe');
+    const recapTotal = document.getElementById('recapTotal');
+    const panierData = document.getElementById('panierData');
+    
+    let html = '';
+    let total = 0;
+    
+    panier.forEach(item => {
+        const sousTotal = item.prix * item.quantite;
+        total += sousTotal;
+        
+        html += `
+            <div class="recap-item">
+                <div class="recap-item-info">
+                    <div class="recap-item-nom">${item.nom}</div>
+                    <div class="recap-item-details">Quantité : ${item.quantite} × ${item.prix.toFixed(2)} €</div>
+                </div>
+                <div class="recap-item-prix">${sousTotal.toFixed(2)} €</div>
+            </div>
+        `;
+    });
+    
+    recapListe.innerHTML = html;
+    recapTotal.textContent = total.toFixed(2);
+    panierData.value = JSON.stringify(panier);
+});
+
+// Vider le panier après validation
+document.getElementById('commandeForm')?.addEventListener('submit', () => {
+    sessionStorage.removeItem('panier');
+});
+</script>
+{% endblock %}

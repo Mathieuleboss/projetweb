@@ -1,0 +1,975 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block title %}Mon Compte - Mon Restaurant{% endblock %}
+
+{% block content %}
+
+<div class="account-container">
+    
+    <!-- En-tête du profil -->
+    <div class="profile-header">
+        <div class="profile-avatar">
+            <span>{{ user.username|slice:":1"|upper }}</span>
+        </div>
+        <div class="profile-info">
+            <h1>Bonjour, {{ user.get_full_name|default:user.username }} !</h1>
+            <p>Membre depuis le {{ user.date_joined|date:"d/m/Y" }}</p>
+        </div>
+        <div class="profile-points">
+            <div class="points-badge">
+                <span class="points-number">{{ user.profile.points|default:0 }}</span>
+                <span class="points-label">Points</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation par onglets -->
+    <div class="tabs-container">
+        <button class="tab-btn active" onclick="switchTab('infos', event)">📋 Mes Informations</button>
+        <button class="tab-btn" onclick="switchTab('commandes', event)">🛍️ Mes Commandes</button>
+        <button class="tab-btn" onclick="switchTab('reservations', event)">📅 Mes Réservations</button>
+        <button class="tab-btn" onclick="switchTab('avis', event)">⭐ Mes Avis</button>
+    </div>
+
+    <!-- Contenu des onglets -->
+    <div class="tabs-content">
+        
+        <!-- ONGLET INFORMATIONS -->
+        <div id="tab-infos" class="tab-content active">
+            <div class="info-card">
+                <h2>Informations personnelles</h2>
+                <form method="post" action="{% url 'update_profile' %}" class="info-form">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Prénom</label>
+                            <input type="text" name="first_name" value="{{ user.first_name }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Nom</label>
+                            <input type="text" name="last_name" value="{{ user.last_name }}" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Nom d'utilisateur</label>
+                        <input type="text" value="{{ user.username }}" disabled style="background: #f5f5f5; cursor: not-allowed;">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" value="{{ user.email }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Téléphone</label>
+                        <input type="tel" name="phone" value="{{ user.profile.phone|default:'' }}" placeholder="+33 6 12 34 56 78">
+                    </div>
+                    <button type="submit" class="btn-save">💾 Enregistrer les modifications</button>
+                </form>
+            </div>
+            
+            <div class="info-card">
+                <h2>Statistiques</h2>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-icon">🛍️</span>
+                        <span class="stat-number">{{ commandes.count|default:0 }}</span>
+                        <span class="stat-label">Commandes</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-icon">📅</span>
+                        <span class="stat-number">{{ reservations.count|default:0 }}</span>
+                        <span class="stat-label">Réservations</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-icon">⭐</span>
+                        <span class="stat-number">{{ avis_list.count|default:0 }}</span>
+                        <span class="stat-label">Avis donnés</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-icon">🎁</span>
+                        <span class="stat-number">{{ user.profile.points|default:0 }}</span>
+                        <span class="stat-label">Points fidélité</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ONGLET COMMANDES -->
+        <div id="tab-commandes" class="tab-content">
+            <div class="section-header">
+                <h2>Mes Commandes</h2>
+                <a href="{% url 'commander' %}" class="btn-primary">+ Nouvelle commande</a>
+            </div>
+
+            {% if commandes %}
+                <div class="orders-list">
+                    {% for commande in commandes %}
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div>
+                                <span class="order-number">#{{ commande.id }}</span>
+                                <span class="order-date">{{ commande.date_creation|date:"d/m/Y à H:i" }}</span>
+                            </div>
+                            <span class="order-status status-{{ commande.statut }}">
+                                {{ commande.get_statut_display }}
+                            </span>
+                        </div>
+                        <div class="order-items">
+                            {% for ligne in commande.lignes.all %}
+                            <div class="order-item">
+                                <span>{{ ligne.plat.nom }} × {{ ligne.quantite }}</span>
+                                <span class="item-price">{{ ligne.sous_total }}€</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="order-footer">
+                            <div>
+                                <span class="order-total">Total : <strong>{{ commande.montant_total }}€</strong></span>
+                                <span class="order-points">🎁 +{{ commande.points_gagnes }} points</span>
+                            </div>
+                            <div>
+                                <span class="order-payment">💳 {{ commande.get_mode_paiement_display }}</span>
+                            </div>
+                        </div>
+                        {% if commande.adresse_livraison %}
+                        <div class="order-address">
+                            📍 Livraison : {{ commande.adresse_livraison }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <span class="empty-icon">🛍️</span>
+                    <h3>Aucune commande</h3>
+                    <p>Vous n'avez pas encore passé de commande</p>
+                    <a href="{% url 'commander' %}" class="btn-primary">Commander maintenant</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- ONGLET RÉSERVATIONS -->
+        <div id="tab-reservations" class="tab-content">
+            <div class="section-header">
+                <h2>Mes Réservations</h2>
+                <a href="{% url 'reservations' %}" class="btn-primary">+ Nouvelle réservation</a>
+            </div>
+
+            {% if reservations %}
+                <div class="reservations-list">
+                    {% for reservation in reservations %}
+                    <div class="reservation-card">
+                        <div class="reservation-icon">
+                            📅
+                        </div>
+                        <div class="reservation-details">
+                            <h3>{{ reservation.date|date:"l d F Y" }}</h3>
+                            <p>🕐 {{ reservation.time }} • 🪑 Table {{ reservation.table.number }} ({{ reservation.table.seats }} places)</p>
+                            <p class="reservation-ref">Référence : #{{ reservation.id }}</p>
+                        </div>
+                        <div class="reservation-actions">
+                            <form method="post" action="{% url 'annuler_reservation' reservation.id %}" id="cancelForm-{{ reservation.id }}">
+                                {% csrf_token %}
+                                <button type="button" class="btn-cancel" onclick="openCancelModal(event, document.getElementById('cancelForm-{{ reservation.id }}'))">
+                                    ❌ Annuler
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <span class="empty-icon">📅</span>
+                    <h3>Aucune réservation</h3>
+                    <p>Vous n'avez pas encore de réservation</p>
+                    <a href="{% url 'reservations' %}" class="btn-primary">Réserver une table</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- ONGLET AVIS -->
+        <div id="tab-avis" class="tab-content">
+            <div class="section-header">
+                <h2>Mes Avis</h2>
+                <a href="{% url 'avis' %}" class="btn-primary">+ Donner un avis</a>
+            </div>
+
+            {% if avis_list %}
+                <div class="reviews-list">
+                    {% for avis in avis_list %}
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="review-rating">
+                                {% for i in "12345" %}
+                                    <span class="star {% if forloop.counter <= avis.note %}filled{% endif %}">★</span>
+                                {% endfor %}
+                            </div>
+                            <span class="review-date">{{ avis.date_creation|date:"d/m/Y" }}</span>
+                        </div>
+                        <p class="review-comment">{{ avis.commentaire }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <span class="empty-icon">⭐</span>
+                    <h3>Aucun avis</h3>
+                    <p>Vous n'avez pas encore laissé d'avis</p>
+                    <a href="{% url 'avis' %}" class="btn-primary">Donner mon avis</a>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal de confirmation d'annulation -->
+<div id="cancelModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-icon">⚠️</div>
+        <h2 class="modal-title">Annuler la réservation</h2>
+        <p class="modal-message">
+            Êtes-vous sûr de vouloir annuler cette réservation ?<br>
+            Cette action est irréversible.
+        </p>
+        <div class="modal-buttons">
+            <button class="modal-btn modal-btn-back" onclick="closeModal()">
+                ← Retour
+            </button>
+            <button class="modal-btn modal-btn-cancel" onclick="confirmCancel()">
+                ❌ Confirmer l'annulation
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .account-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    /* En-tête du profil */
+    .profile-header {
+        background: linear-gradient(135deg, #d35400 0%, #e67e22 100%);
+        padding: 40px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        color: white;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(211, 84, 0, 0.3);
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        font-weight: bold;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .profile-info h1 {
+        margin: 0 0 5px 0;
+        font-size: 32px;
+    }
+
+    .profile-info p {
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    .profile-points {
+        margin-left: auto;
+    }
+
+    .points-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 20px 30px;
+        border-radius: 15px;
+        text-align: center;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .points-number {
+        display: block;
+        font-size: 36px;
+        font-weight: bold;
+    }
+
+    .points-label {
+        display: block;
+        font-size: 14px;
+        opacity: 0.9;
+    }
+
+    /* Navigation par onglets */
+    .tabs-container {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #eee;
+        flex-wrap: wrap;
+    }
+
+    .tab-btn {
+        background: none;
+        border: none;
+        padding: 15px 25px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        color: #666;
+        transition: all 0.3s ease;
+        border-bottom: 3px solid transparent;
+        position: relative;
+        bottom: -2px;
+    }
+
+    .tab-btn:hover {
+        color: #d35400;
+    }
+
+    .tab-btn.active {
+        color: #d35400;
+        border-bottom-color: #d35400;
+    }
+
+    /* Contenu des onglets */
+    .tab-content {
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cartes d'information */
+    .info-card {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+    }
+
+    .info-card h2 {
+        margin-top: 0;
+        color: #2c3e50;
+        font-size: 24px;
+        margin-bottom: 25px;
+    }
+
+    /* Formulaire */
+    .info-form .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #555;
+        font-weight: 600;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: border-color 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #d35400;
+    }
+
+    .btn-save {
+        background: #27ae60;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-save:hover {
+        background: #229954;
+        transform: translateY(-2px);
+    }
+
+    /* Statistiques */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 20px;
+    }
+
+    .stat-box {
+        text-align: center;
+        padding: 25px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 12px;
+        transition: transform 0.3s ease;
+    }
+
+    .stat-box:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-icon {
+        font-size: 40px;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    .stat-number {
+        display: block;
+        font-size: 32px;
+        font-weight: bold;
+        color: #d35400;
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        display: block;
+        color: #666;
+        font-size: 14px;
+    }
+
+    /* En-tête de section */
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .section-header h2 {
+        margin: 0;
+        color: #2c3e50;
+    }
+
+    .btn-primary {
+        background: #d35400;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .btn-primary:hover {
+        background: #e67e22;
+        transform: translateY(-2px);
+    }
+
+    /* Liste des commandes */
+    .orders-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .order-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        transition: transform 0.3s ease;
+    }
+
+    .order-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    }
+
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .order-number {
+        font-weight: bold;
+        color: #2c3e50;
+        margin-right: 15px;
+        font-size: 18px;
+    }
+
+    .order-date {
+        color: #7f8c8d;
+        font-size: 14px;
+    }
+
+    .order-status {
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .status-en_attente { background: #fff3cd; color: #856404; }
+    .status-en_preparation { background: #cce5ff; color: #004085; }
+    .status-prete { background: #d4edda; color: #155724; }
+    .status-livree { background: #d1ecf1; color: #0c5460; }
+    .status-annulee { background: #f8d7da; color: #721c24; }
+
+    .order-items {
+        margin: 15px 0;
+    }
+
+    .order-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        color: #555;
+    }
+
+    .item-price {
+        font-weight: 600;
+        color: #d35400;
+    }
+
+    .order-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 2px solid #f0f0f0;
+    }
+
+    .order-total {
+        font-size: 18px;
+        color: #2c3e50;
+        margin-right: 15px;
+    }
+
+    .order-points {
+        color: #27ae60;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .order-payment {
+        color: #7f8c8d;
+        font-size: 14px;
+    }
+
+    .order-address {
+        margin-top: 15px;
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        color: #555;
+        font-size: 14px;
+    }
+
+    /* Liste des réservations */
+    .reservations-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .reservation-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        transition: transform 0.3s ease;
+    }
+
+    .reservation-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    }
+
+    .reservation-icon {
+        font-size: 48px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        flex-shrink: 0;
+    }
+
+    .reservation-details {
+        flex: 1;
+    }
+
+    .reservation-details h3 {
+        margin: 0 0 10px 0;
+        color: #2c3e50;
+    }
+
+    .reservation-details p {
+        margin: 5px 0;
+        color: #666;
+    }
+
+    .reservation-ref {
+        font-size: 12px;
+        color: #888 !important;
+        font-style: italic;
+    }
+
+    .reservation-actions {
+        text-align: right;
+    }
+
+    .btn-cancel {
+        background: #e74c3c;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
+    }
+
+    /* Liste des avis */
+    .reviews-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .review-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .review-rating {
+        display: flex;
+        gap: 3px;
+    }
+
+    .star {
+        color: #ddd;
+        font-size: 20px;
+    }
+
+    .star.filled {
+        color: #f39c12;
+    }
+
+    .review-date {
+        color: #7f8c8d;
+        font-size: 14px;
+    }
+
+    .review-comment {
+        color: #555;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* État vide */
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    .empty-icon {
+        font-size: 80px;
+        display: block;
+        margin-bottom: 20px;
+        opacity: 0.3;
+    }
+
+    .empty-state h3 {
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+
+    .empty-state p {
+        color: #7f8c8d;
+        margin-bottom: 25px;
+    }
+
+    /* Modal Overlay */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 9998;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Modal Container */
+    .modal-container {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease;
+        position: relative;
+        z-index: 9999;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    /* Modal Content */
+    .modal-icon {
+        font-size: 64px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .modal-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .modal-message {
+        font-size: 16px;
+        color: #666;
+        text-align: center;
+        line-height: 1.6;
+        margin-bottom: 30px;
+    }
+
+    /* Modal Buttons */
+    .modal-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+
+    .modal-btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .modal-btn-cancel {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .modal-btn-cancel:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
+    }
+
+    .modal-btn-back {
+        background: #95a5a6;
+        color: white;
+    }
+
+    .modal-btn-back:hover {
+        background: #7f8c8d;
+        transform: translateY(-2px);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .profile-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .profile-points {
+            margin-left: 0;
+        }
+
+        .info-form .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .tabs-container {
+            overflow-x: auto;
+            flex-wrap: nowrap;
+        }
+
+        .tab-btn {
+            white-space: nowrap;
+        }
+
+        .reservation-card {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .reservation-actions {
+            text-align: center;
+        }
+
+        .order-footer {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+    }
+</style>
+
+<script>
+// Fonction pour changer d'onglet
+function switchTab(tabName, event) {
+    // Désactiver tous les onglets
+    const allTabs = document.querySelectorAll('.tab-content');
+    allTabs.forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Désactiver tous les boutons d'onglets
+    const allButtons = document.querySelectorAll('.tab-btn');
+    allButtons.forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Activer l'onglet sélectionné
+    const selectedTab = document.getElementById('tab-' + tabName);
+    if (selectedTab) {
+        selectedTab.classList.add('active');
+    }
+    
+    // Activer le bouton cliqué
+    if (event) {
+        event.currentTarget.classList.add('active');
+    }
+}
+
+// Au chargement de la page, s'assurer que le premier onglet est actif
+document.addEventListener('DOMContentLoaded', function() {
+    const firstTab = document.querySelector('.tab-content');
+    const firstButton = document.querySelector('.tab-btn');
+    
+    if (firstTab) firstTab.classList.add('active');
+    if (firstButton) firstButton.classList.add('active');
+});
+
+// Gestion du modal d'annulation
+let currentForm = null;
+
+// Fonction pour ouvrir le modal
+function openCancelModal(event, form) {
+    event.preventDefault();
+    currentForm = form;
+    document.getElementById('cancelModal').classList.add('active');
+    document.body.style.overflow = 'hidden'; // Empêche le scroll
+}
+
+// Fonction pour fermer le modal
+function closeModal() {
+    document.getElementById('cancelModal').classList.remove('active');
+    document.body.style.overflow = ''; // Réactive le scroll
+    currentForm = null;
+}
+
+// Fonction pour confirmer l'annulation
+function confirmCancel() {
+    if (currentForm) {
+        currentForm.submit();
+    }
+}
+
+// Fermer le modal en cliquant sur l'overlay
+const cancelModal = document.getElementById('cancelModal');
+if (cancelModal) {
+    cancelModal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+}
+
+// Fermer le modal avec la touche Échap
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeModal();
+    }
+});
+</script>
+
+{% endblock %}
+

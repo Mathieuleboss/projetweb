@@ -1,0 +1,378 @@
+{% extends 'restaurant/base.html' %}
+
+{% block title %}Avis clients{% endblock %}
+
+{% block content %}
+<div class="avis-container">
+    <h1 class="page-title">Avis de nos clients</h1>
+    
+    {% if form.commentaire.errors %}
+    <div class="field-error">{{ form.commentaire.errors|join:", " }}</div>
+    {% endif %}
+
+    <!-- Formulaire d'ajout d'avis (uniquement si connecté) -->
+    {% if user.is_authenticated %}
+        <div class="avis-form-box">
+            <h2>Donnez votre avis</h2>
+            
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert {% if 'error' in message.tags %}alert-error{% else %}alert-success{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <form method="post" class="avis-form">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label>Votre note</label>
+                    <div class="star-rating-container">
+                        <input type="radio" name="note" value="5" id="star5" required>
+                        <label for="star5" class="star-label"><span class="star">★</span></label>
+                        
+                        <input type="radio" name="note" value="4" id="star4">
+                        <label for="star4" class="star-label"><span class="star">★</span></label>
+                        
+                        <input type="radio" name="note" value="3" id="star3">
+                        <label for="star3" class="star-label"><span class="star">★</span></label>
+                        
+                        <input type="radio" name="note" value="2" id="star2">
+                        <label for="star2" class="star-label"><span class="star">★</span></label>
+                        
+                        <input type="radio" name="note" value="1" id="star1">
+                        <label for="star1" class="star-label"><span class="star">★</span></label>
+                    </div>
+                    {% if form.note.errors %}
+                        <div class="field-error">{{ form.note.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_commentaire">Votre avis</label>
+                    <textarea name="commentaire" id="id_commentaire" rows="5" placeholder="Partagez votre expérience..." required></textarea>
+                    {% if form.commentaire.errors %}
+                        <div class="field-error">{{ form.commentaire.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+                
+                <button type="submit" class="btn-submit">
+                    Publier mon avis
+                </button>
+            </form>
+        </div>
+    {% else %}
+        <div class="login-prompt">
+            <p>📝 Vous devez être connecté pour laisser un avis.</p>
+            <a href="{% url 'login' %}" class="btn">Se connecter</a>
+        </div>
+    {% endif %}
+    
+    <!-- Liste des avis -->
+    <div class="avis-list">
+        <h2>Tous les avis ({{ avis_list.count }})</h2>
+        
+        {% if avis_list %}
+            {% for avis in avis_list %}
+                <div class="avis-card">
+                    <div class="avis-header">
+                        <div class="avis-user">
+                            <span class="user-icon">👤</span>
+                            <span class="user-name">{{ avis.user.username }}</span>
+                        </div>
+                        <div class="avis-rating">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= avis.note %}
+                                    <span class="star filled">★</span>
+                                {% else %}
+                                    <span class="star empty">☆</span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="avis-content">
+                        <p>{{ avis.commentaire }}</p>
+                    </div>
+                    
+                    <div class="avis-date">
+                        <small>Publié le {{ avis.date_creation|date:"d/m/Y à H:i" }}</small>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-avis">
+                <p>Aucun avis pour le moment. Soyez le premier à donner votre avis !</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+/* ================================
+   PAGE AVIS
+================================ */
+.avis-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.page-title {
+    text-align: center;
+    color: var(--primary);
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+}
+
+/* Formulaire d'avis */
+.avis-form-box {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    margin-bottom: 50px;
+}
+
+.avis-form-box h2 {
+    text-align: center;
+    color: var(--secondary);
+    margin-bottom: 30px;
+    font-size: 1.8rem;
+}
+
+.avis-form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: var(--secondary);
+    font-size: 1.1rem;
+}
+
+/* Système d'étoiles */
+.star-rating-container {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    gap: 5px;
+    margin: 20px 0;
+}
+
+.star-rating-container input[type="radio"] {
+    display: none;
+}
+
+.star-label {
+    cursor: pointer;
+    font-size: 3rem;
+    color: #ddd;
+    transition: all 0.2s ease;
+    display: inline-block;
+}
+
+.star-label:hover,
+.star-label:hover ~ .star-label {
+    color: #ffa500;
+    transform: scale(1.15);
+}
+
+.star-rating-container input[type="radio"]:checked ~ .star-label {
+    color: #ff8c00;
+}
+
+.star-rating-container input[type="radio"]:checked + .star-label {
+    color: #ff8c00;
+}
+
+/* Textarea */
+.avis-form textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+    box-sizing: border-box;
+    resize: vertical;
+    min-height: 120px;
+}
+
+.avis-form textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    background-color: white;
+    box-shadow: 0 0 0 4px rgba(211,84,0,0.1);
+}
+
+/* Prompt de connexion */
+.login-prompt {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    margin-bottom: 50px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.login-prompt p {
+    font-size: 1.2rem;
+    color: var(--secondary);
+    margin-bottom: 20px;
+}
+
+.login-prompt .btn {
+    display: inline-block;
+    width: auto;
+    padding: 12px 30px;
+}
+
+/* Liste des avis */
+.avis-list {
+    margin-top: 50px;
+}
+
+.avis-list h2 {
+    color: var(--secondary);
+    font-size: 2rem;
+    margin-bottom: 30px;
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 10px;
+}
+
+.avis-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.avis-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.avis-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.avis-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-icon {
+    font-size: 1.5rem;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--secondary);
+    font-size: 1.1rem;
+}
+
+.avis-rating {
+    display: flex;
+    gap: 3px;
+}
+
+.avis-rating .star {
+    font-size: 1.3rem;
+}
+
+.avis-rating .star.filled {
+    color: #ffa500;
+}
+
+.avis-rating .star.empty {
+    color: #ddd;
+}
+
+.avis-content {
+    margin: 20px 0;
+    line-height: 1.6;
+}
+
+.avis-content p {
+    color: #555;
+    font-size: 1rem;
+}
+
+.avis-date {
+    text-align: right;
+    color: #999;
+    font-size: 0.9rem;
+}
+
+.no-avis {
+    text-align: center;
+    padding: 60px 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.no-avis p {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+/* Messages */
+.messages {
+    margin-bottom: 20px;
+}
+
+.alert {
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.field-error {
+    color: #dc3545;
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .avis-form-box {
+        padding: 20px;
+    }
+    
+    .avis-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .star-rating-container {
+        gap: 5px;
+    }
+    
+    .star-label {
+        font-size: 2.5rem;
+    }
+}
+</style>
+{% endblock %}
