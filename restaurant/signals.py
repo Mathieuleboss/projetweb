@@ -27,4 +27,18 @@ def create_employe_info(sender, instance, created, **kwargs):
     """
     if instance.role == 'employe':
         if not hasattr(instance, 'employe_info'):
-            EmployeInfo.objects.get_or_create(profile=instance)
+            # ✅ Définir les horaires par défaut
+            horaires_defaut = {
+                "lundi": {"debut": "11:30", "fin": "22:30"},
+                "mardi": {"debut": "11:30", "fin": "22:30"},
+                "mercredi": {"debut": "11:30", "fin": "22:30"},
+                "jeudi": {"debut": "11:30", "fin": "22:30"},
+                "vendredi": {"debut": "11:30", "fin": "22:30"},
+                "samedi": {"debut": "Repos", "fin": ""},
+                "dimanche": {"debut": "Repos", "fin": ""}
+            }
+            
+            EmployeInfo.objects.get_or_create(
+                profile=instance,
+                defaults={'horaires': horaires_defaut}
+            )
